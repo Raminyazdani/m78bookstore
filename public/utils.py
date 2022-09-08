@@ -12,3 +12,4 @@ Version : {information["version"]}
 
 def salam(name):
     print("Hello ", name)
+

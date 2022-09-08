@@ -2,7 +2,7 @@ DB_CONNECTION = {
     "HOST": "localhost",
     "USER": "postgres",
     "PORT": 5432,
-    "PASSWORD": ""
+    "PASSWORD": "1090"
 }
 
 INFO = {
