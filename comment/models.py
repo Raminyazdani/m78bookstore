@@ -1,14 +1,31 @@
 from core.models import DBModel
+from core.utils import *
 
 
-class Order_item(DBModel):  # order_item model
-    TABLE = 'order_item'
+class Comment(DBModel):  # order_item model
+    TABLE = 'comments'
     PK = 'id'
+    file_id = FileId()
+    owner = User_name()
+    info = Info()
+    time_created = ""
 
-    def __init__(self, file_id, order_cart_id, date_added=None ,id=None) -> None:
+    def __init__(self, file_id, owner, info, time_created=None, id=None) -> None:
         self.file_id = file_id
-        self.order_cart_id = order_cart_id
+        self.owner = owner
+        self.info = info
+        self.time_created = time_created
+        if self.time_created is None:
+            self.time_created = create_time()
 
-        if date_added:self.date_added = date_added
+        self.id = id
+        if self.id is None:
+            self.id = "?"
 
-        if id: self.id = id
+    @property
+    def __dict__(self):
+        return {"file_id": self.file_id,
+                "owner": self.owner,
+                "info": self.info,
+                "time_created": self.time_created,
+                "id": self.id}

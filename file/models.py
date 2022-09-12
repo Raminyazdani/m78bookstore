@@ -8,20 +8,20 @@ class Files(DBModel):  # Files model
     name = FileName()
     owner = User_name()
     path = FilePath()
-    time_added = ""
-    time_modified = ""
     info = Info()
+    time_created = ""
+    time_modified = ""
 
-    def __init__(self, name, owner, path, time_added, time_modified, info, id=None) -> None:
+    def __init__(self, name, owner, path, info, time_created=None, time_modified=None, id=None) -> None:
         self.name = name
         self.owner = owner
         self.path = path
-        self.time_added = time_added
+        self.time_created = time_created
         self.time_modified = time_modified
         self.info = info
 
-        if self.time_added is None:
-            self.time_added = create_time()
+        if self.time_created is None:
+            self.time_created = create_time()
         if self.time_modified is None:
             self.time_modified = create_time()
         self.id = id
@@ -33,7 +33,8 @@ class Files(DBModel):  # Files model
         return {'name': self.name,
                 "owner": self.owner,
                 "path": self.path,
-                "time_added": self.time_added,
+                "info": self.info,
+
+                "time_created": self.time_created,
                 "time_modified": self.time_modified,
-                "info":self.info,
                 "id": self.id}

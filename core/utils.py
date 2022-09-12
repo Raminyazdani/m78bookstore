@@ -40,31 +40,38 @@ class EmailValidationError(ValidationError):
 
 
 class NationalIdValidationError(ValidationError):
-    def __init__(self, email, message):
-        self.email = email
+    def __init__(self, national_id, message):
+        self.email = national_id
         self.message = message
-        super(NationalIdValidationError, self).__init__(message, email)
+        super(NationalIdValidationError, self).__init__(message, national_id)
 
 
 class AgeValidationError(ValidationError):
-    def __init__(self, email, message):
-        self.email = email
+    def __init__(self, age, message):
+        self.email = age
         self.message = message
-        super(AgeValidationError, self).__init__(message, email)
+        super(AgeValidationError, self).__init__(message, age)
 
 
 class PasswordValidationError(ValidationError):
-    def __init__(self, email, message):
-        self.email = email
+    def __init__(self, password, message):
+        self.email = password
         self.message = message
-        super(PasswordValidationError, self).__init__(message, email)
+        super(PasswordValidationError, self).__init__(message, password)
 
 
 class FileNameValidationError(ValidationError):
-    def __init__(self, email, message):
-        self.email = email
+    def __init__(self, file_name, message):
+        self.email = file_name
         self.message = message
-        super(FileNameValidationError, self).__init__(message, email)
+        super(FileNameValidationError, self).__init__(message, file_name)
+
+
+class FileIdValidationError(ValidationError):
+    def __init__(self, file_id, message):
+        self.email = file_id
+        self.message = message
+        super(FileIdValidationError, self).__init__(message, file_id)
 
 
 # for name ,firstname and surname ,username
@@ -120,6 +127,24 @@ def phone_validator(phone):
         return True
     else:
         return False
+
+
+def file_validator(file_id):
+    pattern = r"^\d{1,}$"
+    compiler = re.compile(pattern)
+    if compiler.match(file_id):
+        return True
+    else:
+        return False
+
+
+def items_validator(files_list):
+    for item in files_list:
+        try:
+            file_validator(item)
+        except:
+            return False
+    return True
 
 
 class First_name:
@@ -243,6 +268,43 @@ class Info:
             raise FileNameValidationError("Invalid File Name format", value)
 
 
+class FileId:
+    def __get__(self, obj, obj_type=None):
+        return self.value
+
+    def __set__(self, obj, value):
+        if file_validator(value):
+            self.value = value
+        else:
+            raise FileIdValidationError("Invalid File id format", value)
+
+
+class Items:
+    def __get__(self, obj, obj_type=None):
+        if self.value is None:
+            return ""
+        return self.value
+
+    def __set__(self, obj, value):
+        if value is None:
+            self.value = value
+        else:
+            if isinstance(value, str):
+                if value =="":
+                    value = None
+                    self.value= value
+                else:
+                    try:
+                        value = value.split(",")
+                        self.value = value
+                    except:
+                        raise FileIdValidationError("Invalid Files in list items added", value)
+            if items_validator(self.value):
+                self.value = value
+            else:
+                raise FileIdValidationError("Invalid Files added", value)
+
+
 def create_time():
     return str(datetime.datetime.now().timestamp())
 
@@ -261,7 +323,11 @@ table_column_types = {'first_name': "varchar(50)",
                       "owner": "varchar(50)",
                       "path": "varchar(50)",
                       "time_added": "varchar(50)",
-                      "info": "varchar(50)"}
+                      "info": "varchar(50)",
+                      "file_id": "varchar(50)",
+                      "order_cart_id": "varchar(50)",
+                      "items": "varchar(50)",
 
+                      }
 
-unique_table_column_types = ["email", "username"]
+unique_table_column_types = ["email", "username","owner_id_cart"]

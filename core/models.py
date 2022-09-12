@@ -6,6 +6,9 @@ class DBModel(ABC):  # abstract base Database model
     TABLE: str  # table name
     PK: str  # primary key column of the table
 
+    def __repr__(self):
+        return f"{self.__class__.__name__} {vars(self)}"
+
     def __str__(self) -> str:
         return f"{self.__class__.__name__} {vars(self)}"
 
@@ -30,18 +33,20 @@ class DBModel(ABC):  # abstract base Database model
         return query
 
     @classmethod
-    def db_read_from_table(cls,pk=None):
-        query = manager_db_read_from_table(cls,pk)
+    def db_read_from_table(cls, pk=None):
+        query = manager_db_read_from_table(cls, pk)
         return query
 
     @classmethod
     def db_check_database_table_model(cls):
         query = manager_db_check_database_table_model(cls)
         return query
+
     @classmethod
     def db_create_table_model(cls):
-        query=manager_db_create_table_model(cls)
+        query = manager_db_create_table_model(cls)
         return query
+
     @property
     def db_update_to_table(self):
         query = manager_db_update_to_table(self)

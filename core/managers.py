@@ -32,6 +32,7 @@ class DBManager:
         query = model_instance.db_check_database_table
         cursor = self.get_cursor()
         cursor.execute(query)
+        self.conn.commit()
         y = cursor.fetchall()
         result: bool = y[0]["exists"]
         return result
@@ -40,6 +41,7 @@ class DBManager:
         query = model_class.db_check_database_table_model()
         cursor = self.get_cursor()
         cursor.execute(query)
+        self.conn.commit()
         y = cursor.fetchall()
         result: bool = y[0]["exists"]
         return result
@@ -49,8 +51,10 @@ class DBManager:
         cursor = self.get_cursor()
         try:
             cursor.execute(query)
+            self.conn.commit()
             return True
         except:
+            cursor.execute("rollback")
             return False
 
     def create_table_model(self, model_class: DBModel) -> bool:
@@ -58,8 +62,10 @@ class DBManager:
         cursor = self.get_cursor()
         try:
             cursor.execute(query)
+            self.conn.commit()
             return True
         except:
+            cursor.execute("rollback")
             return False
 
     def delete_table(self, model_instance: DBModel) -> bool:
@@ -69,8 +75,10 @@ class DBManager:
             cursor = self.get_cursor()
             try:
                 cursor.execute(query)
+                self.conn.commit()
                 return True
             except:
+                cursor.execute("rollback")
                 return False
         else:
             return False
@@ -81,17 +89,22 @@ class DBManager:
             cursor = self.get_cursor()
             try:
                 cursor.execute(query)
+                self.conn.commit()
                 return True
             except:
-                print("duplicated input")
+                cursor.execute("rollback")
+                print("duplicated input for ",list(model_instance.__dict__.items())[0])
+                self.conn.commit()
                 return False
         else:
             print("table not exists")
-            print("creating new table")
+            print("creating new table",model_instance.__class__.__dict__['TABLE'])
             self.create_table(model_instance)
             self.insert_table(model_instance)
+            self.conn.commit()
 
-    def read(self, model_class, pk=None) -> DBModel:  # get
+
+    def read(self, model_class, pk=None) -> DBModel or list:  # get
         """
             returns an instance of the Model with inserted values
         """
@@ -103,23 +116,26 @@ class DBManager:
                 try:
                     cursor.execute(query)
                     result = cursor.fetchone()
-
+                    self.conn.commit()
                     return model_class(**dict(result))
                 except:
+                    cursor.execute("rollback")
                     print("Could not read model from table")
             else:
                 query = model_class.db_read_from_table()
                 cursor = self.get_cursor()
                 try:
                     cursor.execute(query)
+                    self.conn.commit()
                     result = cursor.fetchall()
-                    result_list = [model_class(**dict(x))for x in result]
+                    result_list = [model_class(**dict(x)) for x in result]
                     return result_list
                 except:
+                    cursor.execute("rollback")
                     print("Could not read models from table")
         else:
             print("table not exists")
-            print("creating new table")
+            print("creating new table",model_class.__dict__["TABLE"])
             self.create_table_model(model_class)
 
     def update(self, model_instance: DBModel) -> bool:
@@ -132,13 +148,15 @@ class DBManager:
             cursor = self.get_cursor()
             try:
                 cursor.execute(query)
+                self.conn.commit()
                 return True
             except:
+                cursor.execute("rollback")
                 print("Could not update model")
                 return False
         else:
             print("table not exists")
-            print("creating new table")
+            print("creating new table",model_instance.__class__.__dict__['TABLE'])
             self.create_table(model_instance)
 
     def delete(self, model_instance: DBModel) -> bool:
@@ -151,8 +169,10 @@ class DBManager:
             cursor = self.get_cursor()
             try:
                 cursor.execute(query)
+                self.conn.commit()
                 return True
             except:
+                cursor.execute("rollback")
                 print("Could not delete")
                 return False
         else:
